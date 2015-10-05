@@ -34,12 +34,10 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.android.datetimepicker.HapticFeedbackController;
 import com.android.datetimepicker.R;
 import com.android.datetimepicker.Utils;
 import com.android.datetimepicker.time.RadialPickerLayout.OnValueSelectedListener;
-
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -204,8 +202,8 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         mSelectHours = res.getString(R.string.select_hours);
         mMinutePickerDescription = res.getString(R.string.minute_picker_description);
         mSelectMinutes = res.getString(R.string.select_minutes);
-        mSelectedColor = res.getColor(mThemeDark? R.color.red : R.color.blue);
-        mUnselectedColor = res.getColor(mThemeDark? R.color.white : R.color.numbers_text_color);
+        mSelectedColor = res.getColor(R.color.white);
+        mUnselectedColor = res.getColor(R.color.dtp_header_numbers);
 
         mHourView = (TextView) view.findViewById(R.id.hours);
         mHourView.setOnKeyListener(keyboardListener);
@@ -241,15 +239,15 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
                 tryVibrate();
             }
         });
-        mMinuteView.setOnClickListener(new OnClickListener() {
+        /*mMinuteView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 setCurrentItemShowing(MINUTE_INDEX, true, false, true);
                 tryVibrate();
             }
-        });
+        });*/
 
-        mDoneButton = (TextView) view.findViewById(R.id.done_button);
+        /*mDoneButton = (TextView) view.findViewById(R.id.done_button);
         mDoneButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -265,7 +263,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
                 dismiss();
             }
         });
-        mDoneButton.setOnKeyListener(keyboardListener);
+        mDoneButton.setOnKeyListener(keyboardListener);*/
 
         // Enable or disable the AM/PM view.
         mAmPmHitspace = view.findViewById(R.id.ampm_hitspace);
@@ -331,14 +329,20 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         int darkDoneBackground = R.drawable.done_background_color_dark;
 
         // Set the colors for each view based on the theme.
-        view.findViewById(R.id.time_display_background).setBackgroundColor(mThemeDark? darkGray : white);
-        view.findViewById(R.id.time_display).setBackgroundColor(mThemeDark? darkGray : white);
-        ((TextView) view.findViewById(R.id.separator)).setTextColor(mThemeDark? white : timeDisplay);
-        ((TextView) view.findViewById(R.id.ampm_label)).setTextColor(mThemeDark? white : timeDisplay);
-        view.findViewById(R.id.line).setBackgroundColor(mThemeDark? darkLine : line);
-        mDoneButton.setTextColor(mThemeDark? darkDoneTextColor : doneTextColor);
-        mTimePicker.setBackgroundColor(mThemeDark? lightGray : circleBackground);
-        mDoneButton.setBackgroundResource(mThemeDark? darkDoneBackground : doneBackground);
+        final View selectedTimeAreaBackground = view.findViewById(R.id.time_display_background);
+        selectedTimeAreaBackground.setBackgroundColor(res.getColor(R.color.dtp_accent));
+
+        final View timeBackground = view.findViewById(R.id.time_display);
+        timeBackground.setBackgroundColor(res.getColor(R.color.dtp_accent));
+
+        final TextView separator = (TextView) view.findViewById(R.id.separator);
+
+        separator.setTextColor(res.getColor(R.color.dtp_header_numbers));
+
+        ((TextView) view.findViewById(R.id.ampm_label)).setTextColor(mThemeDark ? white : timeDisplay);
+        view.findViewById(R.id.line).setBackgroundColor(mThemeDark ? darkLine : line);
+
+        mTimePicker.setBackgroundColor(mThemeDark ? lightGray : circleBackground);
         return view;
     }
 
@@ -396,14 +400,27 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
             if (valueRespectsHoursConstraint(newValue)) {
                 setHour(newValue, false);
                 String announcement = String.format("%d", newValue);
-                if (mAllowAutoAdvance && autoAdvance) {
+                /*if (mAllowAutoAdvance && autoAdvance) {
                     setCurrentItemShowing(MINUTE_INDEX, true, true, false);
                     announcement += ". " + mSelectMinutes;
                 } else {
                     mTimePicker.setContentDescription(mHourPickerDescription + ": " + newValue);
-                }
+                }*/
+                mTimePicker.setContentDescription(mHourPickerDescription + ": " + newValue);
 
                 Utils.tryAccessibilityAnnounce(mTimePicker, announcement);
+
+                if (autoAdvance) {
+                    if (mInKbMode && isTypedTimeFullyLegal()) {
+                        finishKbMode(false);
+                    } else {
+                        tryVibrate();
+                    }
+                    if (mCallback != null) {
+                        mCallback.onTimeSet(mTimePicker, mTimePicker.getHours(), mTimePicker.getMinutes());
+                    }
+                    dismiss();
+                }
             }
         } else if (pickerIndex == MINUTE_INDEX){
             if (valueRespectsMinutesConstraint(newValue)) {
@@ -570,7 +587,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
         if (mTimePicker.trySettingInputEnabled(false) &&
                 (keyCode == -1 || addKeyIfLegal(keyCode))) {
             mInKbMode = true;
-            mDoneButton.setEnabled(false);
+//            mDoneButton.setEnabled(false);
             updateDisplay(false);
         }
     }
@@ -597,7 +614,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
                 mTypedTimes.add(mTypedTimes.size() - 1, KeyEvent.KEYCODE_0);
                 mTypedTimes.add(mTypedTimes.size() - 1, KeyEvent.KEYCODE_0);
             }
-            mDoneButton.setEnabled(true);
+//            mDoneButton.setEnabled(true);
         }
 
         return true;
@@ -638,7 +655,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
     private int deleteLastTypedKey() {
         int deleted = mTypedTimes.remove(mTypedTimes.size() - 1);
         if (!isTypedTimeFullyLegal()) {
-            mDoneButton.setEnabled(false);
+//            mDoneButton.setEnabled(false);
         }
         return deleted;
     }
@@ -680,7 +697,7 @@ public class TimePickerDialog extends DialogFragment implements OnValueSelectedL
                 updateAmPmDisplay(hour < 12? AM : PM);
             }
             setCurrentItemShowing(mTimePicker.getCurrentItemShowing(), true, true, true);
-            mDoneButton.setEnabled(true);
+//            mDoneButton.setEnabled(true);
         } else {
             Boolean[] enteredZeros = {false, false};
             int[] values = getEnteredTime(enteredZeros);

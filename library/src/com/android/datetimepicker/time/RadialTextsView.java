@@ -25,11 +25,10 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.graphics.Paint.Align;
+import android.graphics.Typeface;
 import android.util.Log;
 import android.view.View;
-
 import com.android.datetimepicker.R;
 
 /**
@@ -381,8 +380,12 @@ public class RadialTextsView extends View {
 
     private void setPaintColorEnabledOrDisabled(String text){
         if (mHasInnerCircle) {
-            if ((Integer.parseInt(text) >= mMinHour) && (Integer.parseInt(text) <= mMaxHour)){
-                mPaint.setColor(mTextColorNormal);
+            if ((Integer.parseInt(text) >= mMinHour) && (Integer.parseInt(text) <= mMaxHour)) {
+                if (Integer.parseInt(text) == mSelectedHour) {
+                    mPaint.setColor(getResources().getColor(R.color.white));
+                } else {
+                    mPaint.setColor(mTextColorNormal);
+                }
             } else {
                 mPaint.setColor(mDisabledTextColor);
             }

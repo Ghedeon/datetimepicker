@@ -36,7 +36,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
-
 import com.android.datetimepicker.HapticFeedbackController;
 import com.android.datetimepicker.R;
 
@@ -116,15 +115,15 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
         mAmPmCirclesView = new AmPmCirclesView(context);
         addView(mAmPmCirclesView);
 
-        mHourRadialTextsView = new RadialTextsView(context);
-        addView(mHourRadialTextsView);
-        mMinuteRadialTextsView = new RadialTextsView(context);
-        addView(mMinuteRadialTextsView);
-
         mHourRadialSelectorView = new RadialSelectorView(context);
         addView(mHourRadialSelectorView);
         mMinuteRadialSelectorView = new RadialSelectorView(context);
         addView(mMinuteRadialSelectorView);
+
+        mHourRadialTextsView = new RadialTextsView(context);
+        addView(mHourRadialTextsView);
+        mMinuteRadialTextsView = new RadialTextsView(context);
+        addView(mMinuteRadialTextsView);
 
         // Prepare mapping to snap touchable degrees to selectable degrees.
         preparePrefer30sMap();
@@ -310,6 +309,10 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
         if (index == HOUR_INDEX) {
             if (mMinHour <= value && value <= mMaxHour) {
                 mCurrentHoursOfDay = value;
+
+                mHourRadialTextsView.setSelectedHour(mCurrentHoursOfDay);
+                mHourRadialTextsView.invalidate();
+
                 mMinuteRadialSelectorView.setSelectedHour(mCurrentHoursOfDay);
                 mMinuteRadialSelectorView.invalidate();
                 mMinuteRadialTextsView.setSelectedHour(mCurrentHoursOfDay);

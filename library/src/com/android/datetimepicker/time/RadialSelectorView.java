@@ -27,7 +27,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.Log;
 import android.view.View;
-
 import com.android.datetimepicker.R;
 import com.android.datetimepicker.Utils;
 
@@ -118,7 +117,7 @@ public class RadialSelectorView extends View {
 
         Resources res = context.getResources();
 
-        int blue = res.getColor(R.color.blue);
+        int blue = res.getColor(R.color.dtp_accent);
         mPaint.setColor(blue);
         mPaint.setAntiAlias(true);
         mSelectionAlpha = SELECTED_ALPHA;
@@ -169,7 +168,7 @@ public class RadialSelectorView extends View {
             color = res.getColor(R.color.blue);
             mSelectionAlpha = SELECTED_ALPHA;
         }
-        mPaint.setColor(color);
+        mPaint.setColor(res.getColor(R.color.dtp_accent));
     }
 
     /**
@@ -317,7 +316,7 @@ public class RadialSelectorView extends View {
         int pointY = mYCenter - (int) (mLineLength * Math.cos(mSelectionRadians));
 
         // Draw the selection circle.
-        mPaint.setAlpha(mSelectionAlpha);
+//        mPaint.setAlpha(mSelectionAlpha);
 
         innerRadiusSelection = equals(mNumbersRadiusMultiplier, Float.parseFloat(getResources().getString(R.string.numbers_radius_multiplier_inner)));
 
